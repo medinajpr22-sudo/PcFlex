@@ -51,9 +51,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('/prestamos', PrestamosController::class)->middleware('can:gestionar.recursos');
     //ambientes 
 
-    Route::put('/environments/{id}', [EnvironmentController::class, 'update'])->name('environments.update')->middleware('can:gestionar.recursos');
     Route::put('/environments/activate/{id}', [EnvironmentController::class, 'active'])->name('environments.activate')->middleware('can:gestionar.recursos');
-
     Route::resource('/environments', EnvironmentController::class)->middleware('can:gestionar.recursos');
 
     //rutas equipos 
@@ -82,8 +80,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('Borrower_users', Borrower_usersController::class)->middleware('can:gestionar.recursos');
 
     //rutas programas 
-    Route::put('/programs/{id}/activate', [ProgramController::class, 'activate'])->name('programs.activate')->middleware('can:gestionar.recursos');
-    Route::put('/programs/{id}', [ProgramController::class, 'update'])->name('programs.update')->middleware('can:gestionar.recursos');
+    Route::put('/programs/activate/{id}', [ProgramController::class, 'activate'])->name('programs.activate')->middleware('can:gestionar.recursos');
     Route::resource('programs', ProgramController::class)->middleware('can:gestionar.recursos');
 
     //rutas perfil
