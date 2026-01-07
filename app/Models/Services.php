@@ -8,7 +8,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Services extends Model
 {
-    protected $fillable = ['user_borrower_id', 'equipment_id', 'librarian_borrower_id', 'date_ser', 'status', 'environment_id'];
+    protected $fillable = [
+        'user_borrower_id', 
+        'equipment_id', 
+        'librarian_borrower_id', 
+        'date_ser', 
+        'status', 
+        'environment_id',
+        'loan_duration_hours',
+        'expected_return_date',
+        'reminder_sent',
+        'overdue_alert_sent'
+    ];
 
     public static $rules =
     [

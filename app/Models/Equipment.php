@@ -15,9 +15,15 @@ class Equipment extends Model
     ];
 
   
-    protected $fillable = ['type_equi', 'serie_equi', 'characteristics', 'states'];
+    protected $fillable = ['type_equi', 'serie_equi', 'characteristics', 'states', 'name_equi', 'status'];
   
-  
+    // Relación con Services (un equipo puede tener múltiples préstamos)
+    public function services()
+    {
+        return $this->hasMany(Services::class, 'equipment_id');
+    }
+    
+    // Relación individual con el último servicio
     public function service()
     {
         return $this->belongsTo(Services::class);

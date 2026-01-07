@@ -96,76 +96,176 @@ const showErrorAlert = (message) => {
 
     <AuthenticatedLayout>
         <template #header>
-            <div class="flex justify-between items-center">
-                <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                    Usuarios
-                </h2>
-                <NavLink :href="route('users.create')">
-                    <CreateButton>
-                        <i class="fas fa-plus mr-1"></i>
-                        Crear
-                    </CreateButton>
-                </NavLink>
+            <!-- Header con gradiente -->
+            <div
+                class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg shadow-lg p-6 mb-6"
+            >
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div
+                            class="bg-white bg-opacity-20 backdrop-blur-sm rounded-full p-3 mr-4"
+                        >
+                            <i class="fas fa-users text-3xl text-white"></i>
+                        </div>
+                        <div>
+                            <h2 class="font-bold text-3xl text-white">
+                                Usuarios del Sistema
+                            </h2>
+                            <p class="text-indigo-100 text-sm mt-1">
+                                Administra los usuarios con acceso al sistema
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contenedor de botones con diseño mejorado -->
+            <div
+                class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6"
+            >
+                <div class="flex gap-3">
+                    <NavLink :href="route('users.create')">
+                        <CreateButton
+                            class="group inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-green-500 to-green-600 border border-transparent rounded-lg font-semibold text-sm text-white shadow-md hover:from-green-600 hover:to-green-700 hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200"
+                        >
+                            <i
+                                class="fas fa-plus-circle mr-2 group-hover:rotate-90 transition-transform duration-300"
+                            ></i>
+                            Nuevo Usuario
+                        </CreateButton>
+                    </NavLink>
+                </div>
             </div>
         </template>
 
-        <div class="p-4 bg-white rounded-lg shadow-xs">
+        <div
+            class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl shadow-xl p-6"
+        >
             <div
-                class="overflow-hidden mb-8 w-full rounded-lg border shadow-xs"
+                class="overflow-hidden rounded-xl border border-gray-200 shadow-lg bg-white"
             >
-                <div class="overflow-x-auto w-full">
-                    <table class="w-full whitespace-no-wrap">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
                         <thead>
                             <tr
-                                class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase bg-gray-50 border-b"
+                                class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white"
                             >
-                                <th class="px-4 py-3">Nombre</th>
-                                <th class="px-4 py-3">Apellido</th>
-                                <th class="px-4 py-3">
-                                    Número de Identificación
+                                <th
+                                    class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider"
+                                >
+                                    <div class="flex items-center">
+                                        <i class="fas fa-user mr-2"></i>
+                                        Nombre
+                                    </div>
                                 </th>
-                                <th class="px-4 py-3">Sexo</th>
-                                <th class="px-4 py-3">telefono</th>
-                                <th class="px-4 py-3">Acciones</th>
+                                <th
+                                    class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider"
+                                >
+                                    <div class="flex items-center">
+                                        <i class="fas fa-user-tag mr-2"></i>
+                                        Apellido
+                                    </div>
+                                </th>
+                                <th
+                                    class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider"
+                                >
+                                    <div class="flex items-center">
+                                        <i class="fas fa-id-card mr-2"></i>
+                                        Número de Identificación
+                                    </div>
+                                </th>
+                                <th
+                                    class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider"
+                                >
+                                    <div class="flex items-center">
+                                        <i class="fas fa-venus-mars mr-2"></i>
+                                        Sexo
+                                    </div>
+                                </th>
+                                <th
+                                    class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider"
+                                >
+                                    <div class="flex items-center">
+                                        <i class="fas fa-phone mr-2"></i>
+                                        Teléfono
+                                    </div>
+                                </th>
+                                <th
+                                    class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider"
+                                >
+                                    <div class="flex items-center">
+                                        <i class="fas fa-cog mr-2"></i>
+                                        Acciones
+                                    </div>
+                                </th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white divide-y">
+                        <tbody class="bg-white divide-y divide-gray-200">
                             <tr
                                 v-for="user in users.data"
                                 :key="user.id"
-                                class="text-gray-700"
+                                class="hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 transition-all duration-200"
                             >
-                                <td class="px-4 py-3 text-sm">
-                                    {{ user.name }}
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center">
+                                        <div
+                                            class="flex-shrink-0 h-10 w-10 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center mr-3"
+                                        >
+                                            <i
+                                                class="fas fa-user text-white"
+                                            ></i>
+                                        </div>
+                                        <span
+                                            class="text-sm font-medium text-gray-900"
+                                            >{{ user.name }}</span
+                                        >
+                                    </div>
                                 </td>
-                                <td class="px-4 py-3 text-sm">
+                                <td class="px-6 py-4 text-sm text-gray-700">
                                     {{ user.last_name }}
                                 </td>
-                                <td class="px-4 py-3 text-sm">
+                                <td class="px-6 py-4 text-sm text-gray-700">
                                     {{ user.number_identification }}
                                 </td>
-                                <td class="px-4 py-3 text-sm">
-                                    {{ user.sexo }}
+                                <td class="px-6 py-4 text-sm">
+                                    <span
+                                        class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800"
+                                    >
+                                        {{ user.sexo }}
+                                    </span>
                                 </td>
-                                <td class="px-4 py-3 text-sm">
+                                <td class="px-6 py-4 text-sm text-gray-700">
                                     {{ user.telefono }}
                                 </td>
-                                <td class="px-4 py-3 text-sm">
-                                    <div class="flex space-x-2">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center space-x-2">
                                         <NavLink
                                             :href="route('users.show', user.id)"
                                         >
-                                            <ShowButton>Info</ShowButton>
+                                            <ShowButton
+                                                class="inline-flex items-center px-3 py-2 bg-blue-500 text-white text-xs font-medium rounded-lg hover:bg-blue-600 transition-colors duration-200"
+                                            >
+                                                <i class="fas fa-eye mr-1"></i>
+                                                Info
+                                            </ShowButton>
                                         </NavLink>
                                         <NavLink
                                             :href="route('users.edit', user.id)"
                                         >
-                                            <EditButton>Editar</EditButton>
+                                            <EditButton
+                                                class="inline-flex items-center px-3 py-2 bg-amber-500 text-white text-xs font-medium rounded-lg hover:bg-amber-600 transition-colors duration-200"
+                                            >
+                                                <i class="fas fa-edit mr-1"></i>
+                                                Editar
+                                            </EditButton>
                                         </NavLink>
                                         <DeleteButton
                                             @click="openModalDel(user)"
-                                            >Eliminar</DeleteButton
+                                            class="inline-flex items-center px-3 py-2 bg-red-500 text-white text-xs font-medium rounded-lg hover:bg-red-600 transition-colors duration-200"
                                         >
+                                            <i class="fas fa-trash mr-1"></i>
+                                            Eliminar
+                                        </DeleteButton>
                                     </div>
                                 </td>
                             </tr>

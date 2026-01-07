@@ -16,126 +16,80 @@ class reportsController extends Controller
     public function index()
     {
         return Inertia::render('reports/Index', [
-            'repors' =>Disability::paginate(),
+            'repors' => Disability::with(['service.equipment', 'service.users'])
+                ->orderBy('created_at', 'desc')
+                ->paginate(10),
         ]);
     }
     public function create($service_id)
     {
-       // $serviceId = $request->input('service_id', session('serviceId'));
-
-       
-       $service = Services::find($service_id);
+       $service = Services::with(['equipment', 'users'])
+           ->find($service_id);
+           
        if (!$service) {
-        return redirect()->back()->withErrors(['error' => 'Servicio no encontrado']);
-    }
+           return redirect()->back()->withErrors(['error' => 'Servicio no encontrado']);
+       }
 
-    return Inertia::render('reports/Create', [
-        'service' => $service,
-    ]);
+       return Inertia::render('reports/Create', [
+           'service' => $service,
+       ]);
     }
     
     public function store(Request $request)
-
     { 
         $currentDate = Carbon::now()->startOfDay();
        
-
+        // Validación de fecha
         if (Carbon::parse($request->input('end_date'))->startOfDay()->lessThan($currentDate)) {
-
-            return redirect()->back()->withErrors(['error' => 'la Fecha deve ser posterior ala actual']);
-
+            return redirect()->back()->withErrors(['end_date' => 'La fecha debe ser posterior a la actual']);
         }
         
-        
-        $request->validate([
-            'description' => 'required|string',
-            'end_date' => 'required|date',
-            'service_id' => 'required',
+        // Validar datos
+        $validated = $request->validate([
+            'description' => 'required|string|min:10|max:500',
+            'end_date' => 'required|date|after:today',
+            'service_id' => 'required|exists:services,id',
+            'photo_evidence' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120', // 5MB máximo
+        ], [
+            'description.required' => 'La descripción del problema es obligatoria',
+            'description.min' => 'La descripción debe tener al menos 10 caracteres',
+            'end_date.required' => 'La fecha de finalización es obligatoria',
+            'end_date.after' => 'La fecha debe ser posterior a hoy',
+            'photo_evidence.image' => 'El archivo debe ser una imagen',
+            'photo_evidence.max' => 'La imagen no debe superar 5MB',
         ]);
 
-        $service = Services::find($request->input('service_id'));
+        $service = Services::find($validated['service_id']);
 
         if (!$service) {
             return redirect()->back()->withErrors(['error' => 'Servicio no encontrado']);
         }
-        $disability = Disability::create([
-            'description' => $request->input('description'),
-            'end_date' => $request->input('end_date'),
-            'service_id' => $request->input('service_id'),
-        ]);
-
-        //$this->checkAndFireEndDateEvent($disability);
-        $disability->punishment_date = Carbon::now();
-        $disability->save();
-
-     //   event(new DisabilityReportCreated($service));
-
-        return redirect()->route('repors.index')->with(['success' => 'Reporte Creado con exito.']);
-
-    }
-    public function crear()
-    {
-        return Inertia::render('reports/Crear');
-    }
-
-    public function creacion(Request $request)
-    {
-        $currentDate = Carbon::now()->startOfDay();
-
-        if (Carbon::parse($request->input('end_date'))->startOfDay()->lessThan($currentDate)) {
-            return redirect()->back()->withErrors(['error' => 'La fecha de finalización debe ser posterior a la fecha actual']);
-        }
-
-         $request->validate([
-            'description' => 'required|string',
-            'numero_documento' => 'required',
-            'numero_serie' => 'required',
-            'end_date' => 'nullable|date',
-        ]);
-
-        $numero_serie = $request->input('numero_serie');
-        $numero_documento = $request->input('numero_documento');
-
-        $user = Borrower_users::where('number_identification', $numero_documento)->first();
-        $date = $request->input('end_date');
         
-        if(!$user){
-            return redirect()->back()->withErrors(['error' => 'El usuario no se encuentra sancionado']);
+        // Manejar upload de foto si existe
+        $photoPath = null;
+        if ($request->hasFile('photo_evidence')) {
+            $photoPath = $request->file('photo_evidence')->store('disability_photos', 'public');
         }
-        $userId = $user->id;
-        $equipment = Equipment::where('serie_equi', $numero_serie)->first();
+        
+        // Crear reporte
+        $disability = Disability::create([
+            'description' => $validated['description'],
+            'end_date' => $validated['end_date'],
+            'service_id' => $validated['service_id'],
+            'photo_evidence' => $photoPath,
+            'punishment_date' => Carbon::now(),
+        ]);
 
-        if(!$equipment){
-            return redirect()->back()->withErrors(['error' => 'El Equipo no se encuentra']);
-        }
-        $equipmentId = $equipment->id;
-
-        $services = Services::where('user_borrower_id', $userId)
-            ->where('equipment_id', $equipmentId)
-            ->first();
-
-        if ($services) {
-            $serviceId = $services->id;
-            $disability = Disability::create([
-                'description' => $request->input('description'),
-                'end_date' => $request->input('end_date'),
-                'service_id' => $serviceId
-            ]);
-        } else {
-           
-            return redirect()->back()->withErrors(['error' => 'Servicio no encontrado']);
+        // Actualizar estado del usuario a 'reportado'
+        $borrower = Borrower_users::find($service->user_borrower_id);
+        if ($borrower) {
+            $borrower->status = 'reportado';
+            $borrower->save();
         }
 
-
-       // $this->checkAndFireEndDateEvent($disability);
-
-        $disability->punishment_date = Carbon::now();
-        $disability->save();
-
-       //  event(new DisabilityReportCreated($services));
-
-        return redirect('repors')->with(['success' => 'Reporte Creado con exito.']);
+        return redirect()->route('reports.index')->with(['success' => 'Reporte creado con éxito. El usuario ha sido sancionado.']);
     }
+    
     public function destroy(string $id) {
 
         $report = Disability::findOrFail($id);

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Environments;
 use App\Models\Services;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -39,11 +40,51 @@ class PanelPrincipalController extends Controller
         // Obtener los ambientes activos
         $environments = Environments::where('status', 'activo')->get();
     
+        // Calcular estadísticas de préstamos
+        $now = Carbon::now();
+        
+        // Préstamos activos
+        $prestamosActivos = Services::where('status', 'pendiente')->count();
+        
+        // Préstamos de hoy
+        $prestamosHoy = Services::whereDate('date_ser', Carbon::today())->count();
+        
+        // Préstamos del mes
+        $prestamosEsteMes = Services::whereMonth('date_ser', Carbon::now()->month)
+            ->whereYear('date_ser', Carbon::now()->year)
+            ->count();
+        
+        $prestamosProximosVencer = Services::where('status', 'pendiente')
+            ->whereNotNull('expected_return_date')
+            ->get()
+            ->filter(function ($service) use ($now) {
+                $expectedReturn = Carbon::parse($service->expected_return_date);
+                $horasRestantes = $now->diffInHours($expectedReturn, false);
+                return $horasRestantes > 0 && $horasRestantes <= 2; // Próximos a vencer en 2 horas
+            })
+            ->count();
+    
+        $prestamosVencidos = Services::where('status', 'pendiente')
+            ->whereNotNull('expected_return_date')
+            ->get()
+            ->filter(function ($service) use ($now) {
+                $expectedReturn = Carbon::parse($service->expected_return_date);
+                return $now->isAfter($expectedReturn);
+            })
+            ->count();
+    
         // Pasar los datos a la vista con Inertia
         return Inertia::render('Dashboard', [
             'services' => $services,
             'environments' => $environments,
             'search' => $search,
+            'stats' => [
+                'activos' => $prestamosActivos,
+                'hoy' => $prestamosHoy,
+                'esteMes' => $prestamosEsteMes,
+                'proximosVencer' => $prestamosProximosVencer,
+                'vencidos' => $prestamosVencidos,
+            ],
         ]);
     }
 

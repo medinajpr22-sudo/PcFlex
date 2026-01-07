@@ -2,11 +2,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
-class Borrower_users extends Model
+class Borrower_users extends Authenticatable
 {
-    use HasFactory;
+    use HasFactory, Notifiable;
     public static $rules = [
       'name' => 'required',
       'last_name' => 'required',
@@ -27,7 +28,30 @@ class Borrower_users extends Model
         'sex_user',
          'gender_sex', 
          'roll',
+         'password',
+         'status',
+         'name_user',
+         'lastname_user',
+         'user_type',
     ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'password' => 'hashed',
+        ];
+    }
+
+    // Para autenticación por número de documento
+    public function getAuthIdentifierName()
+    {
+        return 'number_identification';
+    }
 
     public function contacts()
     {
@@ -43,9 +67,11 @@ class Borrower_users extends Model
     {
         return $this->hasOne(Relationships::class, 'user_rel_id', 'id');
     }
+    
+    // Relación con Services (un usuario puede tener múltiples préstamos)
     public function services()
     {
-        return $this->hasMany(Services::class, 'user_id');
+        return $this->hasMany(Services::class, 'user_borrower_id');
     }
 
     public function indexCards()

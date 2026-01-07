@@ -204,102 +204,254 @@ const downloadPdf = () => {
     <Head title="Equipos" />
     <AuthenticatedLayout>
         <template #header>
-            Equipos
-            <div class="flex justify-between items-center">
-                <div class="flex gap-x-4">
+            <!-- Header con gradiente -->
+            <div
+                class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg shadow-lg p-6 mb-6"
+            >
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div
+                            class="bg-white bg-opacity-20 backdrop-blur-sm rounded-full p-3 mr-4"
+                        >
+                            <i class="fas fa-laptop text-3xl text-white"></i>
+                        </div>
+                        <div>
+                            <h2 class="font-bold text-3xl text-white">
+                                Gestión de Equipos
+                            </h2>
+                            <p class="text-indigo-100 text-sm mt-1">
+                                Administra el inventario de equipos
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contenedor de botones y búsqueda -->
+            <div
+                class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6"
+            >
+                <div class="flex gap-3">
                     <button
                         @click="downloadPdf"
-                        class="inline-flex items-center px-4 py-2 bg-red-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150"
+                        class="group inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-red-500 to-red-600 border border-transparent rounded-lg font-semibold text-sm text-white shadow-md hover:from-red-600 hover:to-red-700 hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200"
                     >
-                        <i class="fa fa-file" aria-hidden="true"></i>
-                        PDF
+                        <i
+                            class="fa fa-file-pdf mr-2 group-hover:scale-110 transition-transform"
+                            aria-hidden="true"
+                        ></i>
+                        Exportar PDF
                     </button>
-                    <CreateButton @click="openModalForm(1)">
-                        <i class="fas fa-plus mr-1"></i>
-                        Crear
+                    <CreateButton
+                        @click="openModalForm(1)"
+                        class="group inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-green-500 to-green-600 border border-transparent rounded-lg font-semibold text-sm text-white shadow-md hover:from-green-600 hover:to-green-700 hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200"
+                    >
+                        <i
+                            class="fas fa-plus-circle mr-2 group-hover:rotate-90 transition-transform duration-300"
+                        ></i>
+                        Nuevo Equipo
                     </CreateButton>
                 </div>
-                <SearchForm v-model:search="searchTerm" />
+                <div class="w-full sm:w-auto">
+                    <SearchForm
+                        v-model:search="searchTerm"
+                        class="w-full sm:w-64"
+                    />
+                </div>
             </div>
         </template>
 
-        <div class="p-4 bg-white rounded-lg shadow-xs">
+        <!-- Contenedor principal con fondo degradado -->
+        <div
+            class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl shadow-xl p-6"
+        >
             <div
-                class="overflow-hidden mb-8 w-full rounded-lg border shadow-xs"
+                class="overflow-hidden rounded-xl border border-gray-200 shadow-lg bg-white"
             >
-                <div class="overflow-x-auto w-full">
-                    <table class="w-full whitespace-no-wrap">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
                         <thead>
                             <tr
-                                class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase bg-gray-50 border-b"
+                                class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white"
                             >
-                                <th class="px-4 py-3">Tipo de Equipo</th>
-                                <th class="px-4 py-3">Características</th>
-                                <th class="px-4 py-3">Número de Serie</th>
-                                <th class="px-4 py-3">Estado</th>
-                                <th class="px-4 py-3">Acciones</th>
+                                <th
+                                    class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider"
+                                >
+                                    <div class="flex items-center">
+                                        <i class="fas fa-laptop mr-2"></i>
+                                        Tipo de Equipo
+                                    </div>
+                                </th>
+                                <th
+                                    class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider"
+                                >
+                                    <div class="flex items-center">
+                                        <i class="fas fa-info-circle mr-2"></i>
+                                        Características
+                                    </div>
+                                </th>
+                                <th
+                                    class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider"
+                                >
+                                    <div class="flex items-center">
+                                        <i class="fas fa-barcode mr-2"></i>
+                                        Número de Serie
+                                    </div>
+                                </th>
+                                <th
+                                    class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider"
+                                >
+                                    <div class="flex items-center">
+                                        <i class="fas fa-toggle-on mr-2"></i>
+                                        Estado
+                                    </div>
+                                </th>
+                                <th
+                                    class="px-6 py-4 text-center text-xs font-bold uppercase tracking-wider"
+                                >
+                                    <div
+                                        class="flex items-center justify-center"
+                                    >
+                                        <i class="fas fa-cog mr-2"></i>
+                                        Acciones
+                                    </div>
+                                </th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white divide-y">
+                        <tbody class="bg-white divide-y divide-gray-200">
                             <tr
                                 v-for="equipment in filteredEquipments"
                                 :key="equipment.id"
-                                class="text-gray-700"
+                                class="hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 transition-all duration-200"
                             >
-                                <td class="px-4 py-3 text-sm">
-                                    {{ equipment.type_equi }}
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center">
+                                        <div
+                                            class="flex-shrink-0 h-10 w-10 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center mr-3"
+                                        >
+                                            <i
+                                                class="fas fa-desktop text-white"
+                                            ></i>
+                                        </div>
+                                        <span
+                                            class="text-sm font-semibold text-gray-900"
+                                        >
+                                            {{ equipment.type_equi }}
+                                        </span>
+                                    </div>
                                 </td>
-                                <td class="px-4 py-3 text-sm">
-                                    {{ equipment.characteristics }}
+                                <td class="px-6 py-4">
+                                    <span class="text-sm text-gray-700">
+                                        {{ equipment.characteristics }}
+                                    </span>
                                 </td>
-                                <td class="px-4 py-3 text-sm">
-                                    {{ equipment.serie_equi }}
-                                </td>
-                                <td class="px-4 py-3 text-sm">
+                                <td class="px-6 py-4">
                                     <span
-                                        :class="{
-                                            'text-red-500':
-                                                equipment.status === 'inactivo',
-                                            'text-red-700':
-                                                equipment.status === 'prestado',
-                                            'text-green-500':
-                                                equipment.status ===
-                                                'disponible',
-                                            'text-purple-800':
-                                                equipment.status ===
-                                                'reparacion',
-                                        }"
-                                        >{{ equipment.status }}</span
+                                        class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
                                     >
+                                        <i class="fas fa-hashtag mr-1"></i>
+                                        {{ equipment.serie_equi }}
+                                    </span>
                                 </td>
-                               <td class="px-4 py-3 text-sm">
-    <div class="flex space-x-2">
-        <!-- Si el equipo está "prestado", solo muestra el botón "Info" -->
-        <template v-if="equipment.status === 'prestado'">
-            <NavLink :href="route('detalles.show', equipment.id)">
-                <ShowButton>Info</ShowButton>
-            </NavLink>
-        </template>
-
-        <!-- Si el equipo está "disponible", muestra los botones de edición, reparación e inactivación -->
-        <template v-else-if="equipment.status === 'disponible'">
-            <EditButton @click="openModalForm(2, equipment)">Editar</EditButton>
-            <ShowButton @click="openModalrepa(equipment)">Reparación</ShowButton>
-            <DeleteButton @click="openModalDel(equipment)">Inactivar</DeleteButton>
-        </template>
-
-        <!-- Si el equipo tiene otro estado, muestra el botón "Reactivar" -->
-        <template v-else>
-            <GreenButton @click="openModalReactive(equipment)">Reactivar</GreenButton>
-        </template>
-    </div>
-</td>
-
+                                <td class="px-6 py-4">
+                                    <span
+                                        v-if="equipment.status === 'disponible'"
+                                        class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-green-400 to-green-500 text-white shadow-sm"
+                                    >
+                                        <i class="fas fa-check-circle mr-1"></i>
+                                        Disponible
+                                    </span>
+                                    <span
+                                        v-else-if="
+                                            equipment.status === 'prestado'
+                                        "
+                                        class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-yellow-400 to-orange-500 text-white shadow-sm"
+                                    >
+                                        <i class="fas fa-hand-holding mr-1"></i>
+                                        Prestado
+                                    </span>
+                                    <span
+                                        v-else-if="
+                                            equipment.status === 'reparacion'
+                                        "
+                                        class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-purple-400 to-purple-500 text-white shadow-sm"
+                                    >
+                                        <i class="fas fa-tools mr-1"></i>
+                                        Reparación
+                                    </span>
+                                    <span
+                                        v-else
+                                        class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-red-400 to-red-500 text-white shadow-sm"
+                                    >
+                                        <i class="fas fa-times-circle mr-1"></i>
+                                        Inactivo
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="flex justify-center gap-2">
+                                        <template
+                                            v-if="
+                                                equipment.status === 'prestado'
+                                            "
+                                        >
+                                            <NavLink
+                                                :href="
+                                                    route(
+                                                        'detalles.show',
+                                                        equipment.id
+                                                    )
+                                                "
+                                            >
+                                                <ShowButton
+                                                    class="transform hover:scale-105 transition-transform"
+                                                    >Info</ShowButton
+                                                >
+                                            </NavLink>
+                                        </template>
+                                        <template
+                                            v-else-if="
+                                                equipment.status ===
+                                                'disponible'
+                                            "
+                                        >
+                                            <EditButton
+                                                @click="
+                                                    openModalForm(2, equipment)
+                                                "
+                                                class="transform hover:scale-105 transition-transform"
+                                                >Editar</EditButton
+                                            >
+                                            <ShowButton
+                                                @click="
+                                                    openModalrepa(equipment)
+                                                "
+                                                class="transform hover:scale-105 transition-transform"
+                                                >Reparación</ShowButton
+                                            >
+                                            <DeleteButton
+                                                @click="openModalDel(equipment)"
+                                                class="transform hover:scale-105 transition-transform"
+                                                >Inactivar</DeleteButton
+                                            >
+                                        </template>
+                                        <template v-else>
+                                            <GreenButton
+                                                @click="
+                                                    openModalReactive(equipment)
+                                                "
+                                                class="transform hover:scale-105 transition-transform"
+                                                >Reactivar</GreenButton
+                                            >
+                                        </template>
+                                    </div>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-                <div class="flex items-center justify-between p-4">
+                <div
+                    class="px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-t border-gray-200"
+                >
                     <Pagination
                         :links="props.equipments.links"
                         :query="searchTerm.value"
@@ -307,149 +459,249 @@ const downloadPdf = () => {
                 </div>
             </div>
         </div>
+        <!-- Modal para formulario mejorado -->
         <Modal :show="showModalForm" @close="closeModalForm">
-            <div class="p-6 space-y-6">
-                <!-- Título del modal -->
-                <h2 class="text-xl font-semibold text-gray-900 border-b pb-4">
-                    {{ title }}
-                </h2>
-
-                <!-- Campo: Tipo de Equipo -->
-                <div class="space-y-2">
-                    <InputLabel
-                        for="type_equi"
-                        value="Tipo de Equipo"
-                        class="font-medium text-gray-700"
-                    />
-                    <TextInput
-                        v-model="form.type_equi"
-                        id="type_equi"
-                        required
-                        placeholder="Ejemplo: Portátil"
-                        class="w-full mt-1"
-                    />
-                    <InputError class="mt-1" :message="form.errors.type_equi" />
+            <div class="p-8 w-full max-w-lg mx-auto">
+                <!-- Header del modal -->
+                <div class="flex flex-col items-center mb-6">
+                    <div
+                        class="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full p-4 mb-4 shadow-lg"
+                    >
+                        <i class="fas fa-laptop text-4xl text-white"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-900 text-center">
+                        {{ title }}
+                    </h2>
+                    <p class="text-sm text-gray-500 mt-1">
+                        Complete la información del equipo
+                    </p>
                 </div>
 
-                <!-- Campo: Características -->
-                <div class="space-y-2">
-                    <InputLabel
-                        for="characteristics"
-                        value="Características"
-                        class="font-medium text-gray-700"
-                    />
-                    <TextInput
-                        v-model="form.characteristics"
-                        id="characteristics"
-                        required
-                        placeholder="Ejemplo: Lenovo Gaming"
-                        class="w-full mt-1"
-                    />
-                    <InputError
-                        class="mt-1"
-                        :message="form.errors.characteristics"
-                    />
+                <!-- Campos del formulario -->
+                <div class="space-y-5">
+                    <div class="relative">
+                        <InputLabel
+                            for="type_equi"
+                            value="Tipo de Equipo"
+                            class="text-sm font-semibold text-gray-700 mb-2"
+                        />
+                        <div class="relative">
+                            <span
+                                class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400"
+                            >
+                                <i class="fas fa-laptop"></i>
+                            </span>
+                            <TextInput
+                                v-model="form.type_equi"
+                                id="type_equi"
+                                required
+                                placeholder="Ej: Portátil"
+                                class="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200"
+                            />
+                        </div>
+                        <InputError
+                            class="mt-1"
+                            :message="form.errors.type_equi"
+                        />
+                    </div>
+
+                    <div class="relative">
+                        <InputLabel
+                            for="characteristics"
+                            value="Características"
+                            class="text-sm font-semibold text-gray-700 mb-2"
+                        />
+                        <div class="relative">
+                            <span
+                                class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400"
+                            >
+                                <i class="fas fa-info-circle"></i>
+                            </span>
+                            <TextInput
+                                v-model="form.characteristics"
+                                id="characteristics"
+                                required
+                                placeholder="Ej: Lenovo Gaming i7"
+                                class="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200"
+                            />
+                        </div>
+                        <InputError
+                            class="mt-1"
+                            :message="form.errors.characteristics"
+                        />
+                    </div>
+
+                    <div class="relative">
+                        <InputLabel
+                            for="serie_equi"
+                            value="Número de Serie"
+                            class="text-sm font-semibold text-gray-700 mb-2"
+                        />
+                        <div class="relative">
+                            <span
+                                class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400"
+                            >
+                                <i class="fas fa-barcode"></i>
+                            </span>
+                            <TextInput
+                                v-model="form.serie_equi"
+                                id="serie_equi"
+                                required
+                                placeholder="Ej: SN123456789"
+                                class="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200"
+                            />
+                        </div>
+                        <InputError
+                            class="mt-1"
+                            :message="form.errors.serie_equi"
+                        />
+                    </div>
                 </div>
 
-                <!-- Campo: Número de Serie -->
-                <div class="space-y-2">
-                    <InputLabel
-                        for="serie_equi"
-                        value="Número de Serie"
-                        class="font-medium text-gray-700"
-                    />
-                    <TextInput
-                        v-model="form.serie_equi"
-                        id="serie_equi"
-                        required
-                        placeholder="Ejemplo: 123456"
-                        class="w-full mt-1"
-                    />
-                    <InputError
-                        class="mt-1"
-                        :message="form.errors.serie_equi"
-                    />
-                </div>
-
-                <!-- Botones de acción -->
-                <div class="flex justify-end gap-x-4 pt-6 border-t">
+                <!-- Botones -->
+                <div class="mt-8 flex justify-center gap-3">
                     <SecondaryButton
                         @click="closeModalForm"
-                        class="bg-gray-300 hover:bg-gray-400"
+                        class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-all duration-200 font-medium"
                     >
+                        <i class="fas fa-times mr-2"></i>
                         Cancelar
                     </SecondaryButton>
                     <EditButton
                         @click="save"
-                        class="bg-blue-600 hover:bg-blue-700 text-white"
+                        class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 font-medium"
                     >
+                        <i class="fas fa-save mr-2"></i>
                         Guardar
                     </EditButton>
                 </div>
             </div>
         </Modal>
 
-        <!-- Modal para eliminación -->
+        <!-- Modal para eliminación mejorado -->
         <Modal :show="showModalDel" @close="closeModaldel">
-            <div class="p-6 space-y-4">
-                <div class="p-6 space-y-4">
-                    <h1>¿Estás seguro de realizar esta acción?</h1>
-                    <p>
-                        Tenga en cuenta que esta información no se eliminará,
-                        solo se cambia el estado a inactivo.
+            <div class="p-8 w-full max-w-md mx-auto">
+                <div class="flex justify-center mb-6">
+                    <div
+                        class="bg-gradient-to-br from-red-500 to-red-600 rounded-full p-5 shadow-2xl animate-pulse"
+                    >
+                        <i
+                            class="fas fa-exclamation-triangle text-5xl text-white"
+                        ></i>
+                    </div>
+                </div>
+                <h1 class="text-2xl font-bold text-gray-900 text-center mb-3">
+                    ¿Estás seguro de realizar esta acción?
+                </h1>
+                <div
+                    class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded-r-lg"
+                >
+                    <p class="text-sm text-gray-700">
+                        <i class="fas fa-info-circle text-yellow-500 mr-2"></i>
+                        Esta información no se eliminará, solo se cambiará el
+                        estado a <strong class="text-red-600">Inactivo</strong>.
                     </p>
                 </div>
-                <div class="flex justify-end gap-x-2">
-                    <SecondaryButton @click="closeModaldel"
-                        >Cancelar</SecondaryButton
+                <div class="flex justify-center gap-3">
+                    <SecondaryButton
+                        @click="closeModaldel"
+                        class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-all duration-200 font-medium"
                     >
-                    <DangerButton @click="deleteprogram"
-                        >Sí, seguro</DangerButton
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        Cancelar
+                    </SecondaryButton>
+                    <DangerButton
+                        @click="deleteprogram"
+                        class="px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-lg hover:from-red-700 hover:to-red-800 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 font-medium"
                     >
+                        <i class="fas fa-check mr-2"></i>
+                        Sí, continuar
+                    </DangerButton>
                 </div>
             </div>
         </Modal>
 
-        <!-- Modal para reparación -->
+        <!-- Modal para reparación mejorado -->
         <Modal :show="showModalrepa" @close="closeModalrepa">
-            <div class="p-6 space-y-4">
-                <div class="p-6">
-                    <h1>¿Estás seguro de enviar a reparación?</h1>
-                    <p>
-                        Tenga en cuenta que este equipo no se prestará
-                        nuevamente, y su estado se cambia manualmente.
+            <div class="p-8 w-full max-w-md mx-auto">
+                <div class="flex justify-center mb-6">
+                    <div
+                        class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-full p-5 shadow-2xl"
+                    >
+                        <i class="fas fa-tools text-5xl text-white"></i>
+                    </div>
+                </div>
+                <h1 class="text-2xl font-bold text-gray-900 text-center mb-3">
+                    ¿Enviar equipo a reparación?
+                </h1>
+                <div
+                    class="bg-purple-50 border-l-4 border-purple-400 p-4 mb-6 rounded-r-lg"
+                >
+                    <p class="text-sm text-gray-700">
+                        <i class="fas fa-wrench text-purple-500 mr-2"></i>
+                        El equipo no estará disponible para préstamo y su estado
+                        cambiará a
+                        <strong class="text-purple-600">Reparación</strong>.
                     </p>
                 </div>
-                <div class="flex justify-end gap-x-2">
-                    <SecondaryButton @click="closeModalrepa"
-                        >Cancelar</SecondaryButton
+                <div class="flex justify-center gap-3">
+                    <SecondaryButton
+                        @click="closeModalrepa"
+                        class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-all duration-200 font-medium"
                     >
-                    <DangerButton @click="reparationEquipment(v)"
-                        >Sí, seguro</DangerButton
+                        <i class="fas fa-times mr-2"></i>
+                        Cancelar
+                    </SecondaryButton>
+                    <DangerButton
+                        @click="reparationEquipment(v)"
+                        class="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg hover:from-purple-700 hover:to-purple-800 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 font-medium"
                     >
+                        <i class="fas fa-tools mr-2"></i>
+                        Enviar a reparación
+                    </DangerButton>
                 </div>
             </div>
         </Modal>
 
+        <!-- Modal para reactivación mejorado -->
         <Modal :show="showModalReactive" @close="closeModalReactive">
-            <div class="p-6 space-y-4">
-                <div class="p-6">
-                    <h1>
-                        ¿Estás seguro de que el Equipo se ecuentra en
-                        biblioteca?
-                    </h1>
-                    <p>
-                        Tenga en cuenta que al reactivar el equipo, El sistema
-                        asume que el equipo Esta en Biblioteca.
+            <div class="p-8 w-full max-w-md mx-auto">
+                <div class="flex justify-center mb-6">
+                    <div
+                        class="bg-gradient-to-br from-green-500 to-green-600 rounded-full p-5 shadow-2xl"
+                    >
+                        <i class="fas fa-check-circle text-5xl text-white"></i>
+                    </div>
+                </div>
+                <h1 class="text-2xl font-bold text-gray-900 text-center mb-3">
+                    ¿Reactivar este equipo?
+                </h1>
+                <div
+                    class="bg-green-50 border-l-4 border-green-400 p-4 mb-6 rounded-r-lg"
+                >
+                    <p class="text-sm text-gray-700">
+                        <i class="fas fa-check text-green-500 mr-2"></i>
+                        Al reactivar el equipo, el sistema asumirá que está
+                        <strong class="text-green-600"
+                            >disponible en biblioteca</strong
+                        >.
                     </p>
                 </div>
-                <div class="flex justify-end gap-x-2">
-                    <SecondaryButton @click="closeModalReactive"
-                        >Cancelar</SecondaryButton
+                <div class="flex justify-center gap-3">
+                    <SecondaryButton
+                        @click="closeModalReactive"
+                        class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-all duration-200 font-medium"
                     >
-                    <DangerButton @click="activateProgram(v)"
-                        >Sí, Reactivar</DangerButton
+                        <i class="fas fa-times mr-2"></i>
+                        Cancelar
+                    </SecondaryButton>
+                    <DangerButton
+                        @click="activateProgram(v)"
+                        class="px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 font-medium"
                     >
+                        <i class="fas fa-check-circle mr-2"></i>
+                        Sí, Reactivar
+                    </DangerButton>
                 </div>
             </div>
         </Modal>

@@ -1,0 +1,173 @@
+# INSTRUCCIONES PARA CONFIGURAR EMAIL EN .env
+
+## OPCION 1: MAILTRAP (Recomendado)
+
+1. Crear cuenta en https://mailtrap.io (GRATIS)
+2. Ir a: Email Testing -> Inboxes -> My Inbox
+3. Click en "Show Credentials"
+4. Copiar Username y Password
+
+5. Abrir el archivo .env en VS Code
+
+6. BUSCAR estas lineas y REEMPLAZARLAS:
+
+ANTES (lo que tienes ahora):
+```
+MAIL_MAILER=log
+MAIL_HOST=127.0.0.1
+MAIL_PORT=2525
+MAIL_USERNAME=null
+MAIL_PASSWORD=null
+MAIL_ENCRYPTION=null
+MAIL_FROM_ADDRESS="hello@example.com"
+MAIL_FROM_NAME="${APP_NAME}"
+```
+
+DESPUES (lo que debes poner):
+```
+MAIL_MAILER=smtp
+MAIL_HOST=sandbox.smtp.mailtrap.io
+MAIL_PORT=2525
+MAIL_USERNAME=TU_USERNAME_DE_MAILTRAP_AQUI
+MAIL_PASSWORD=TU_PASSWORD_DE_MAILTRAP_AQUI
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS="noreply@pcflex.com"
+MAIL_FROM_NAME="PcFlex - Sistema de Prestamos"
+```
+
+7. GUARDAR el archivo .env
+
+8. Ejecutar estos comandos en PowerShell:
+```powershell
+php artisan config:clear
+php artisan cache:clear
+```
+
+9. PROBAR que funciona:
+```powershell
+php artisan tinker
+```
+
+Dentro de tinker, ejecutar:
+```php
+Mail::raw('Prueba desde PcFlex', function($m) {
+    $m->to('test@test.com')->subject('Email de Prueba');
+});
+```
+
+Si sale "= null" -> Funciono!
+
+10. Ir a https://mailtrap.io y ver el email en tu inbox
+
+---
+
+## OPCION 2: GMAIL (Si prefieres Gmail)
+
+1. Ir a https://myaccount.google.com/security
+2. Activar "Verificacion en 2 pasos" (si no la tienes)
+3. Ir a "Contraseñas de aplicaciones"
+4. Crear contraseña para "Correo" en "Windows"
+5. Copiar la contraseña de 16 caracteres
+
+6. Abrir el archivo .env
+
+7. BUSCAR estas lineas y REEMPLAZARLAS:
+
+ANTES:
+```
+MAIL_MAILER=log
+MAIL_HOST=127.0.0.1
+MAIL_PORT=2525
+MAIL_USERNAME=null
+MAIL_PASSWORD=null
+MAIL_ENCRYPTION=null
+MAIL_FROM_ADDRESS="hello@example.com"
+MAIL_FROM_NAME="${APP_NAME}"
+```
+
+DESPUES:
+```
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=tucorreo@gmail.com
+MAIL_PASSWORD=contraseña_de_16_caracteres_aqui
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS="tucorreo@gmail.com"
+MAIL_FROM_NAME="PcFlex - Sistema de Prestamos"
+```
+
+8. GUARDAR y ejecutar:
+```powershell
+php artisan config:clear
+php artisan cache:clear
+```
+
+9. PROBAR con tinker igual que arriba
+
+---
+
+## PROBAR EMAILS REALES DE LA APP
+
+Una vez configurado, probar los emails reales:
+
+### 1. Probar email de devolucion:
+
+```powershell
+php artisan tinker
+```
+
+```php
+$service = App\Models\Services::where('status', 'pendiente')->first();
+$usuario = $service->users;
+$equipo = $service->equipment;
+
+Mail::to($usuario->contacts->email_con)->send(new App\Mail\DevolucionComprobante($service, $usuario, $equipo));
+```
+
+### 2. Probar email de recordatorio:
+
+```php
+$service = App\Models\Services::where('status', 'pendiente')->first();
+Mail::to($service->users->contacts->email_con)->send(new App\Mail\RecordatorioDevolucion($service, $service->users, $service->equipment, 24));
+```
+
+### 3. Probar comando automatico:
+
+```powershell
+php artisan app:enviar-recordatorios-devolucion
+```
+
+---
+
+## SOLUCION DE PROBLEMAS
+
+### Error: "Connection could not be established"
+- Ejecutar: `php artisan config:clear`
+- Verificar credenciales en .env
+- Verificar internet
+
+### Error: "Authentication failed"
+- Gmail: Usar contraseña de aplicacion (NO tu contraseña normal)
+- Mailtrap: Copiar bien el username y password
+
+### No llegan emails
+- Revisar: storage/logs/laravel.log
+- En Mailtrap: Revisar inbox en su web
+- En Gmail: Revisar bandeja de entrada
+
+### Ver logs
+```powershell
+Get-Content storage/logs/laravel.log -Tail 50
+```
+
+---
+
+## SIGUIENTE PASO: DESPLEGAR A PRODUCCION
+
+Una vez que los emails funcionen localmente:
+
+1. Subir proyecto a GitHub
+2. Desplegar en Railway.app
+3. Usar las mismas credenciales de email
+4. Listo para produccion!

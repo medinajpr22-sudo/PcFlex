@@ -5,49 +5,51 @@ namespace App\Http\Controllers;
 use App\Models\Borrower_users;
 use App\Models\Equipment;
 use App\Models\Services;
+use App\Mail\DevolucionComprobante;
+use App\Traits\ValidatesEquipmentAndUser;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class DevolucionController extends Controller
 {
+    use ValidatesEquipmentAndUser;
     public function update(Request $request)
     {
         request()->validate(Services::$Rules);
     
-        $equipment = Equipment::where('serie_equi', $request->equipment_id)->first();
-        $user = Borrower_users::where('number_identification', $request->user_returner_id)->first();
+        // Usar métodos centralizados del trait
+        $equipment = $this->findOrFailWithMessage(
+            'equipment_id',
+            Equipment::class,
+            'serie_equi',
+            $request->equipment_id
+        );
+        
+        $user = $this->findOrFailWithMessage(
+            'user_returner_id',
+            Borrower_users::class,
+            'number_identification',
+            $request->user_returner_id
+        );
     
-        if (!$equipment) {
-            return redirect()->back()->withErrors(['error' => 'El equipo no existe']);
-        }
-        if (!$user) {
-            return redirect()->back()->withErrors(['error' => 'El usuario no existe']);
-        }
-    
-        switch ($equipment->status) {
-            case 'inactivo':
-                return redirect()->back()->withErrors(['error' => 'Este equipo está marcado como inactivo']);
-            case 'reparacion':
-                return redirect()->back()->withErrors(['error' => 'Este equipo está en reparación']);
-            case 'disponible':
-                return redirect()->back()->withErrors(['error' => 'Este equipo no está marcado como prestado']);
-        }
+        // Validar que el equipo esté en condiciones de ser devuelto
+        $this->validateEquipmentForReturn($equipment);
     
         $service = Services::where('equipment_id', $equipment->id)
             ->where('status', 'pendiente')
             ->first();
     
         if (!$service) {
-            return redirect()->back()->withErrors(['error' => 'Servicio no encontrado']);
+            return redirect()->back()->withErrors(['error' => 'No hay préstamos pendientes para este equipo.']);
         }
     
         $usuarioPrestatario = Borrower_users::find($service->user_borrower_id);
 
-       
         if (!$usuarioPrestatario) {
-            return redirect()->back()->withErrors(['error' => 'Este usuario no tiene préstamos']);
+            return redirect()->back()->withErrors(['error' => 'Usuario prestatario no encontrado.']);
         }
     
         // Se inicia la transacción en la base de datos
@@ -70,15 +72,39 @@ class DevolucionController extends Controller
             // Si el usuario que devuelve es diferente al que prestó
             if ($usuarioPrestatario->id !== $user->id) {
                 $service->user_returner_id = $user->id;
-                $service->save(); // Guardar los cambios antes de redirigir
-                DB::commit(); // Confirmar la transacción
-                return redirect()->route('reports.create', ['service_id' => $service->id]); // Redirigir a reports.create
+                $service->save();
+                DB::commit();
+                
+                // Redirigir a crear reporte por inconsistencia
+                return redirect()->route('reports.create-from-service', ['service_id' => $service->id])
+                    ->with('warning', 'El equipo fue devuelto por una persona diferente. Por favor, complete el reporte.');
             }
     
             // Si el usuario que devuelve es el mismo que prestó
             $service->save();
+            
+            // Actualizar estado del usuario
+            $usuarioPrestatario->status = 'activo';
+            $usuarioPrestatario->save();
+            
             DB::commit();
-    
+
+            // Enviar correo de comprobante de devolución
+            try {
+                // Cargar relaciones necesarias para el correo
+                $service->load('environment');
+                $usuarioPrestatario->load('contacts');
+                
+                // Intentar enviar el correo si el usuario tiene email
+                if ($usuarioPrestatario->contacts && $usuarioPrestatario->contacts->email_con) {
+                    Mail::to($usuarioPrestatario->contacts->email_con)
+                        ->send(new DevolucionComprobante($service, $usuarioPrestatario, $equipment));
+                }
+            } catch (\Exception $e) {
+                // Si falla el envío del correo, registrar el error pero no fallar la devolución
+                \Log::error('Error al enviar correo de devolución: ' . $e->getMessage());
+            }
+
             return redirect()->back()->with(['success' => 'Devolución exitosa.']);
         } catch (\Exception $e) {
             DB::rollback();

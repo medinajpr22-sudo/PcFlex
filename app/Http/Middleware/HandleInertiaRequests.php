@@ -34,11 +34,14 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request)
     {
+        $user = $request->user();
+        
         return array_merge(parent::share($request), [
             'auth' => [
-                'user' => $request->user(),
+                'user' => $user,
             
-                'roles' => Auth::check() ? Auth::user()->getRoleNames() : [],
+                // Solo obtener roles si es un User (bibliotecario), no Borrower_users
+                'roles' => $user && method_exists($user, 'getRoleNames') ? $user->getRoleNames() : [],
             ],
           
     

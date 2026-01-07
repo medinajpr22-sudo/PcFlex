@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Borrower_usersController;
+use App\Http\Controllers\BorrowerAuth\BorrowerAuthController;
+use App\Http\Controllers\BorrowerAuth\BorrowerDashboardController;
 use App\Http\Controllers\DevolucionController;
 use App\Http\Controllers\EnvironmentController;
 use App\Http\Controllers\EquipmentController;
@@ -30,16 +32,15 @@ Route::get('/', function () {
 // })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
-    
     Route::get('/dashboard', [PanelPrincipalController::class, 'index'])->name('dashboard');
+    
+    //ruta estadísticas
+    Route::get('/statistics', [App\Http\Controllers\StatisticsController::class, 'index'])->name('statistics.index');
 
     //rutas reportes
-    Route::resource('/repors', reportsController::class)->middleware('can:gestionar.recursos');
-    Route::put('/repors/{repor}', [reportsController::class, 'activate'])->name('repors.activate');
-    Route::get('/reports/create/{service_id}', [reportsController::class, 'create'])->name('reports.create');
-    Route::post('/reports', [reportsController::class, 'store'])->name('reports.store')->middleware('can:gestionar.recursos');
-    Route::get('/Repors', [reportsController::class, 'crear'])->name('Repors.crear')->middleware('can:gestionar.recursos');
-    Route::post('/Repors', [reportsController::class, 'creacion'])->name('Repors.creacion')->middleware('can:gestionar.recursos');
+    Route::resource('/reports', reportsController::class)->middleware('can:gestionar.recursos');
+    Route::put('/reports/{report}/activate', [reportsController::class, 'activate'])->name('reports.activate');
+    Route::get('/reports/create-from-service/{service_id}', [reportsController::class, 'create'])->name('reports.create-from-service');
     //rutas de servicio 
     Route::get('/info/{id}', [ServiceController::class, 'details'])->name('info.details');
     Route::get('historial', [ServiceController::class, 'historico'])->name('historial.historico');
@@ -103,6 +104,28 @@ Route::middleware('auth')->group(function () {
     //ruta prestamos
 
 
+});
+
+// ========================================
+// RUTAS DEL PORTAL DE USUARIOS (BORROWERS)
+// ========================================
+
+// Rutas públicas de autenticación para usuarios
+Route::prefix('borrower')->name('borrower.')->group(function () {
+    Route::get('/login', [BorrowerAuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [BorrowerAuthController::class, 'login']);
+    Route::get('/register', [BorrowerAuthController::class, 'showRegister'])->name('register');
+    Route::post('/register', [BorrowerAuthController::class, 'register']);
+});
+
+// Rutas protegidas del portal de usuarios
+Route::middleware('auth:borrower')->prefix('borrower')->name('borrower.')->group(function () {
+    Route::post('/logout', [BorrowerAuthController::class, 'logout'])->name('logout');
+    Route::get('/dashboard', [BorrowerDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/history', [BorrowerDashboardController::class, 'history'])->name('history');
+    Route::get('/sanctions', [BorrowerDashboardController::class, 'sanctions'])->name('sanctions');
+    Route::post('/renew-loan/{service}', [BorrowerDashboardController::class, 'renewLoan'])->name('renew-loan');
+    Route::get('/download-receipt/{service}', [BorrowerDashboardController::class, 'downloadReceipt'])->name('download-receipt');
 });
 
 require __DIR__ . '/auth.php';
