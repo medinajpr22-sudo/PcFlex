@@ -1,0 +1,52 @@
+# ============================================
+# VARIABLES DE ENTORNO PARA RAILWAY
+# ============================================
+# Copia estas variables en Railway (Settings → Variables)
+# Railway auto-genera las de MySQL, solo necesitas agregar las demás
+
+# === APLICACION ===
+APP_NAME=PcFlex
+APP_ENV=production
+APP_KEY=base64:gCEnoovxm3kp60ItEiVFva3Mj/Oq0nBao8WP+smcCnI=
+APP_DEBUG=false
+APP_URL=https://web-production-cd101.up.railway.app
+
+# === BASE DE DATOS ===
+# Railway genera estas automáticamente cuando agregas MySQL:
+# DB_CONNECTION=mysql
+# DB_HOST=${MYSQL_HOST}
+# DB_PORT=${MYSQL_PORT}
+# DB_DATABASE=${MYSQL_DATABASE}
+# DB_USERNAME=${MYSQL_USER}
+# DB_PASSWORD=${MYSQL_PASSWORD}
+
+# === SESIONES Y CACHE ===
+SESSION_DRIVER=database
+CACHE_STORE=database
+QUEUE_CONNECTION=database
+
+# === EMAIL (Gmail) ===
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=pablo20.estudio@gmail.com
+MAIL_PASSWORD=rcqfnpfvnxmwkgtm
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS=pablo20.estudio@gmail.com
+MAIL_FROM_NAME=PcFlex - Sistema de Prestamos
+
+# === LOGS ===
+LOG_CHANNEL=stack
+LOG_LEVEL=error
+
+# ============================================
+# INSTRUCCIONES:
+# ============================================
+# 1. En Railway, click en tu servicio PcFlex
+# 2. Ve a la pestaña "Variables"
+# 3. Click en "RAW Editor"
+# 4. Copia TODO lo de arriba (desde APP_NAME hasta LOG_LEVEL)
+# 5. Pega en el editor
+# 6. Click en "Update Variables"
+# 7. Railway reiniciará automáticamente
+# ============================================
